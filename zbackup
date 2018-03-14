@@ -1,0 +1,29 @@
+#!/bin/bash
+if [ -z "$1" ]; then
+    echo "Usage: `basename $0` [directory] [optional:excludelist]"
+    exit
+fi
+
+# Create backup-2018-Mar-15 name
+NAME="backup"
+NAME="$NAME-$(date '+%Y-%b-%d')"
+BACKUPFILE="./$NAME.7z"
+DIRTOBACKUP=`realpath $1`
+DIR=`realpath $(dirname $0)`
+if [ -e "$BACKUPFILE" ]; then
+    echo "Backup $BACKUPFILE already exists"
+    exit
+fi 
+
+# if exclude list is not supplied
+if [ -z "$2" ]
+  then
+    echo "Backing up..."
+    7z a "$BACKUPFILE" "$DIRTOBACKUP" -mhe=on -p #mhe=on to also encrypts directory list
+else
+    EXCLUDE_LIST=`realpath $2`
+    echo "Backing up with $EXCLUDE_LIST"
+    7z a "$BACKUPFILE" "$DIRTOBACKUP" -mhe=on -p -xr@"$EXCLUDE_LIST" #mhe=on to also encrypts directory list, -xr@ to load exclude list
+fi
+
+echo "Backup done: $BACKUPFILE"
